@@ -2,6 +2,7 @@ import time
 import random
 import hashlib
 import requests
+from fake_useragent import UserAgent as ua
 
 
 def get_sign(e):
@@ -15,8 +16,10 @@ def get_sign(e):
     return end
 
 
-def translate(text):
+def translate(text: str):
     args = get_sign(text)
+
+    UA = ua().random
 
     data = {
         'i': text,
@@ -27,7 +30,7 @@ def translate(text):
         'salt': args['salt'],
         'sign': args['sign'],
         'lts': args['lts'],
-        'bv': '01e27702dbb21a6d2b97645ec075ab88',
+        'bv': hashlib.md5(UA.encode()).hexdigest(),
         'doctype': 'json',
         'version': '2.1',
         'keyfrom': 'fanyi.web',
@@ -35,9 +38,9 @@ def translate(text):
     }
     headers = {
         'Host': 'fanyi.youdao.com',
-        'Cookie': 'OUTFOX_SEARCH_USER_ID=-1255590839@10.112.57.87; OUTFOX_SEARCH_USER_ID_NCOO=61715945.7912438; ___rl__test__cookies=1662472705717',
+        'Cookie': f'OUTFOX_SEARCH_USER_ID=-1255590839@10.112.57.87; OUTFOX_SEARCH_USER_ID_NCOO=61715945.7912438; ___rl__test__cookies={args["lts"]}',
         'Referer': 'https://fanyi.youdao.com/',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.27'
+        'User-Agent': UA
     }
 
     url = 'https://fanyi.youdao.com/translate_o?smartresult=dict&smartresult=rule'
