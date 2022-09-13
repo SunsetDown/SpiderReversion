@@ -18,7 +18,6 @@ def baidu_fanyi(text, **kwargs):
     resp = session.get(url, headers=headers).text
     resp = session.get(url, headers=headers).text
     token = re.findall(r"token: '(.*?)',", resp)[0]
-    print(token)
 
     data = {
         'from': 'zh',
