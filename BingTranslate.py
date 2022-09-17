@@ -31,7 +31,6 @@ class Bing:
     def bing_translate(self):
         url = f'https://cn.bing.com/ttranslatev3?isVertical=1&&IG=1B558B84854143D69302D7F8575CF95E&IID=translator.5022.{self.times}'
 
-
         data = {
             # '': '',
             'fromLang': 'en',
@@ -50,6 +49,3 @@ class Bing:
         return self.bing_translate()
 
     __str__ = __repr__
-
-
-print(Bing('a'))
