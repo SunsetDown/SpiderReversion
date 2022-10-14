@@ -2,9 +2,19 @@ import requests
 import json
 from Music_163_params import get_param
 import os
+import re
 
 
-def download_song(id, name='music', path='SpiderData/163Music/'):
+syspath = os.getcwd()
+path = os.path.join(syspath, 'SpiderData/163Music/')
+
+if not os.path.isdir(path):
+    if not os.path.isdir(os.path.join(syspath, 'SpiderData/')):
+        os.mkdir(os.path.join(syspath, 'SpiderData/'))
+    os.mkdir(path)
+
+
+def download_song(id, name='music', path=path):
     url = 'https://music.163.com/weapi/song/enhance/player/url/v1'
 
     data = {
@@ -40,7 +50,7 @@ def from_list_download(id):
     url = 'https://music.163.com/weapi/v6/playlist/detail'
 
     params = {
-        "csrf_token": "df6d15163cd46c9216e6f374c98de9b3"
+        "csrf_token": "dbe62e7bf8d62354fd7b051f4524ad72"
     }
 
     data = {
@@ -49,7 +59,7 @@ def from_list_download(id):
         "total": "true",
         "limit": "1000",
         "n": "1000",
-        "csrf_token": "df6d15163cd46c9216e6f374c98de9b3"
+        "csrf_token": "dbe62e7bf8d62354fd7b051f4524ad72"
     }
 
     data = get_param(json.dumps(data))
@@ -62,16 +72,16 @@ def from_list_download(id):
     headers = {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.33',
         'referer': 'https://music.163.com/my/',
-        'cookie': '_ntes_nuid=28f75071417ae50afc9ab7ecc50753a0; NMTID=00Ojozfshmsj2PhzEI8v09go9wbtK0AAAF6tvSXAA; WEVNSM=1.0.0; WNMCID=bjaklk.1626567121425.01.0; WM_TID=Sl%2F7C%2Fegv%2B5ARABRRBd7jZ84v2HWyZxr; ntes_kaola_ad=1; _ntes_nnid=28f75071417ae50afc9ab7ecc50753a0,1656118144749; __snaker__id=Mh3I8sdzcQLczmt8; _9755xjdesxxd_=32; YD00000558929251%3AWM_TID=3y77SbASnPFFFFQAVQPUWPeq6WtzFVLu; YD00000558929251%3AWM_NI=sDpr4euxyBt5T3eo7JFEMxqHO%2BAKu03AEcztRDZ%2BJZQEP7t6kZFimizKCUG1HlRDaD1L7yB%2BS5BQBRG5Fn6QjVDIdeZLJ4a35JkOUgQPA8Wxk5kONqmhyMPnenxq%2Fz1reWw%3D; YD00000558929251%3AWM_NIKE=9ca17ae2e6ffcda170e2e6ee8fe4809a8bfd89db79bc968fb2d54b839f9a82c844f3ac88d7cd3eb4bb9ab6f92af0fea7c3b92ab19cc093b76fb7a8b7a3f73f98edab90b642869b8399f4448df58facf83cf19f8b84f980929c96ccc952939ba0d8f73ea9868a8af063ba958db6c63b8cb49ea5e450f394f99ac12191eb8eb2c15a85eb8a8fb55baa8a8caae76f9a9486d5e439f796a5b0d86d93908fd9d674a9eba5b0cd7bafb8b7aed366a7b2b892ae72f3aeabb8f637e2a3; MUSIC_U=330457a2b0a0024fe66838f9c57d17463851927dfcefa2ee0a3819db6cf2cbd3993166e004087dd3e198320860bf8ac418abdc0dc16f7966129b661b1377decdbb1fa89b8b957f2dd4dbf082a8813684; __csrf=df6d15163cd46c9216e6f374c98de9b3; gdxidpyhxdE=W3a1QapD0Vh1ZteV69%2Bq2QYBinXbPkpKQIX8JB5lC9Xo5yDtNyR9jriEYlI7kVGhykn7I1cTxUUUkcGYSHBG7C8l2HkE54A%2FPJiEnyCMMCQjY%5CMbEn2uq%5C%5CdmCMQSlPVeCaiYbROzyT%2FtxqX8fN3fjqVreNbMoTIBQGErRdiDZ3uLC5g%3A1663049341802; _iuqxldmzr_=32; WM_NI=26s6%2Bys%2B2eNlKLRP%2Bg%2FgogL%2Fdb2hFKBGJSZTOhpHLxpbYv78iK7r7%2BxkVRaDwhzIsFrdeMIgDAKTcQvUFBLvkqHQTlgOl6JoQ9xhbKp%2F2kzAJkEKImu6rXKMG3YAFZLFbEU%3D; WM_NIKE=9ca17ae2e6ffcda170e2e6ee98b44baeb2ac91d03e93868aa3d15e869b9e87d550bb9c84a4f26e839b84b0f32af0fea7c3b92af2eabdd7aa73b1f5fe86cd6889949eb1aa6dedb9a188cf25a8befe89c541829986b4d9608db8c0a9cf74b4be9797b634ab95f993b621bcb59ab3e450b5b8b6aaf24eb2bcabaecc6d889f85b5e25bb68b8aa3cf7ea9af88b2d768a591a4d7c96593e7b889e141b4f1fe8cf94b8ab58baccc67b7eabeb9ca4785ed97a2c552909aaea6d837e2a3; playerid=88792982; JSESSIONID-WYYY=V%5CaBFoo8C67ngzagGj2Sf6MKMvAmkQmM%2B0Uwrz%2FS305fs%5CmbPStcM4fBlMmXMIipkMZ%5Cr%2F3%2BONNCMBO%5CsX60rIQ19og%2FM5xyc7eI%2F%5C%5CeadVa3mnPraEGZHiWNahgt0b8hpIoIEBbWC1dpKp018thC6JRt%5CKh49%2FO0HvepeTGitqBDQ5D%3A1663423621916'
+        'cookie': '_ntes_nnid=477845777e0e0b6afc736a03887c485a,1656037203206; _ntes_nuid=477845777e0e0b6afc736a03887c485a; NMTID=00O0D_p_yGEfmLZ1EQWoBiw6Z_ebZIAAAGBk4Jd2w; WNMCID=seqhxe.1656037203894.01.0; WEVNSM=1.0.0; WM_TID=mdb/7Yp5zbZAUREVFBLEV5ZPwBhoJWvL; ntes_kaola_ad=1; WM_NI=l+KWFvE8kIIQnHkoxr7ssLzM5E9KaL+lQzqXOqaKb4zEWWqJNYZmN10FTzAQzWg+cLtTDffy/jGVMwD2fNwQdr8m1kmX1PWm0mVaPXlqs8Omp5v4ygqjDbDGYFr0Wuz1QUQ=; WM_NIKE=9ca17ae2e6ffcda170e2e6eeadf14af28f8797c54eadbc8ea7d84e838f9b87c859b8afba8db25cf193aeb6e42af0fea7c3b92ab0f585b8c57e87e8a5aacc5bae98a590fb7af5adbdadf947f79bf7ace448e9b49f9bf4548dafaface140ba9b99b8f4428e87968ecd3bf49a9c9bc45bba89a9cce248b88c8c87e573edb689b7d07d88eeaaaff65ba8aef88eb461af88ffb1d667f4b39a82d354b0afbdd9ce67b4ebbad5fc6db3b68c83c74d9b9abed1d67fbaef9fb6d437e2a3; __snaker__id=yiLtuFmNgL0DMuHa; _9755xjdesxxd_=32; YD00000558929251:WM_NI=Csa+9RgwSMc7QpYxVL6GmyABHMWJmk1JXUu+6/hO7a/7MLAUoy4KnHlMEh61fcLMwkQxKrMY4na0DpWJWhqLMw8mbWQz5vreQpqHvcBAttKXATRlgdhCz5QyufH3vYpidFc=; YD00000558929251:WM_NIKE=9ca17ae2e6ffcda170e2e6eed1ea25aaabba86f95df89e8ea3d44e929b8bb1c860f8f1ba89b26faeef96d9e22af0fea7c3b92a81adafccbc5aa5a99daee23d93b09799d548f699a39ac44a8c9399abf061f39698b6f821f6f1a8b0b66bede983adc45fada7fcaced44b0938b89b53ba6bd84aef66193a88593d053f8b2afd1c77c95969989f4488fa9f88ee15d93a6fb97f16f93b0bfa9f569829fbc95ca54838c9e8de670ac9db6d6d473b7ba88d4f553b4b7aca7e237e2a3; YD00000558929251:WM_TID=uUHu24qWm+dEAEAEREKEX5q60jajgd5M; JSESSIONID-WYYY=rUUBcFFZC5\7hcaxbAiS3FVdMq8clDUy3onTsBFSDKhkyoXqyOgWQjaDpfhRuN5pezk4T4dZhMsXWGmMGO30n6jvmVFiuMCuWG3wlipUtV9x6wn6gjCbOgmmjC4nca0l6Bb4FVYWcQ0JbEq/hJSbM3ngtkj1Zhtg5qav7mCPiP6ztQs4:1665370150981; _iuqxldmzr_=33; gdxidpyhxdE=9J0V5CrcnvO0mzEypdVhtUEnMGeBKQ8h8raaYexsO4\LbEIm/MyGRD7pHvN35RCVuSSN3nWqH0I+KK3TpaR0sJZ9yhShcoiqzSxAu7kVIHYPU/PtcrRRukf8RYvWDIJfKP6eK9Lz0ZmREsgNgTIy5C2vi/dO9RgyvABkOE8ueQlwndgc:1665370033914; MUSIC_U=330457a2b0a0024fe66838f9c57d1746c5c054eb9bb86fbf3336d3770f295f58993166e004087dd3f7e30da268260ff44184356db009c68c129b661b1377decdbb1fa89b8b957f2dd4dbf082a8813684; __csrf=dbe62e7bf8d62354fd7b051f4524ad72'
     }
 
     resp = requests.post(url, data=data, params=params,
                          headers=headers).json()
 
-    path = f"SpiderData/163Music/{resp['playlist']['name']}"
+    _path = os.path.join(path, resp['playlist']['name'])
 
-    if not os.path.exists(path):
-        os.mkdir(path)
+    if not os.path.exists(_path):
+        os.mkdir(_path)
 
     for i, content in enumerate(resp['playlist']['tracks']):
         title = str(i+1) + '.' + content['name'] + '_'
@@ -82,12 +92,48 @@ def from_list_download(id):
         id = content['id']
 
         try:
-            download_song(id, title, path)
+            download_song(id, title, _path)
             print(f'{title}下载成功!!!')
         except Exception as er:
             print(f'{title}下载失败!!!')
             print(er)
 
 
-if __name__ == '__main__':
-    from_list_download(2571564867)
+def from_album_download(id):
+    url = f'https://music.163.com/album?id={id}'
+
+    resp = requests.get(url)
+
+    data = re.findall(
+        r'<textarea id="song-list-pre-data" style="display:none;">(.*?)</textarea>', resp.text)[0]
+    data = json.loads(data)
+
+    ablum_name = re.findall(r'"title": "(.*?)",', resp.text)[0]
+
+    _path = os.path.join(path, ablum_name)
+    if not os.path.exists(_path):
+        os.mkdir(_path)
+
+    for i, content in enumerate(data):
+        title = str(i+1) + '.' + content['name'] + '_'
+        ars = []
+        for ar in content['artists']:
+            ars.append(ar['name'] if ar['name'] else '未知')
+        title += '-'.join(ars)
+        id = content['id']
+
+        try:
+            download_song(id, title, _path)
+            print(f'{title}下载成功!!!')
+        except Exception as er:
+            print(f'{title}下载失败!!!')
+            print(er)
+
+
+def download(url: str):
+    if 'album' in url:
+        from_album_download(url.split('=')[-1])
+    elif 'playlist' in url:
+        from_list_download(url.split('=')[-1])
+    elif 'song' in url:
+        download_song(url.split('=')[-1])
